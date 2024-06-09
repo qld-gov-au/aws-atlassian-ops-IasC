@@ -1,0 +1,136 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Creates security groups to allow communication between ATLASSIAN layers.
+Parameters:
+  VPC:
+    Type: String
+    Description: Name of the VPC
+  Environment:
+    Type: String
+    Description: Environment, i.e. PROD
+  Platform:
+    Type: String
+    Description: Name of the platform
+
+Resources:
+{% macro security_group_entry(entry, port) %}
+
+        - IpProtocol: tcp
+          FromPort: {{ port | string }}
+          ToPort: {{ port | string }}
+          {% if entry.ip_prefix is defined %}CidrIp: {{ entry.ip_prefix }}{% else %}CidrIpv6: {{ entry.ipv6_prefix }}{% endif %}
+{% endmacro %}
+
+  CloudfrontHTTP:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Master Security Group referencing Cloudfront Security Groups
+      VpcId:
+        Fn::ImportValue: !Ref VPC
+      SecurityGroupIngress: {% for split in range(1, total_splits | int + 1) %}
+
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId:
+            Ref: CloudfrontHTTP{{ split | string }}of{{ total_splits | string }}{% endfor %}
+
+      Tags:
+        - Key: Name
+          Value: cloudfront-http-master
+        - Key: AutoUpdate
+          Value: true
+
+
+  CloudfrontHTTPS:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Master Security Group referencing Cloudfront Security Groups
+      VpcId:
+        Fn::ImportValue: !Ref VPC
+      SecurityGroupIngress: {% for split in range(1, total_splits | int + 1) %}
+
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          SourceSecurityGroupId:
+            Ref: CloudfrontHTTPS{{ split | string }}of{{ total_splits | string }}{% endfor %}
+
+      Tags:
+        - Key: Name
+          Value: cloudfront-https-master
+        - Key: AutoUpdate
+          Value: true
+
+
+#max_entries_per_split: {{max_entries_per_split}}
+#total_entries: "{{ total_entries}}"
+#total_splits: "{{ total_splits }}"
+{% set counter = 0 %}
+
+{% for split in range(1, total_splits | int + 1) %}
+  CloudfrontHTTP{{ split | string }}of{{ total_splits | string }}:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Cloudfront Ranges HTTP Security Group (part {{ split | string }} of {{ total_splits | string }})"
+      VpcId:
+        Fn::ImportValue: !Ref VPC
+      SecurityGroupIngress:
+{% for entry in cloudfront_ips %}{% if loop.index0 >= (split | int - 1) * max_entries_per_split and loop.index0 < split * max_entries_per_split %}
+{{ security_group_entry(entry, 80) }} #{{loop.index0 }}{% endif %}{% endfor %}
+
+      Tags:
+        - Key: Name
+          Value: cloudfront-http
+        - Key: AutoUpdate
+          Value: true
+        - Key: Protocol
+          Value: http
+{% endfor %}
+
+{% set counter = 0 %}
+
+{% for split in range(1, total_splits | int + 1) %}
+  CloudfrontHTTPS{{ split | string }}of{{ total_splits | string }}:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Cloudfront Ranges HTTPS Security Group (part {{ split | string }} of {{ total_splits | string }})"
+      VpcId:
+        Fn::ImportValue: !Ref VPC
+      SecurityGroupIngress:
+{% for entry in cloudfront_ips %}{% if loop.index0 >= (split | int - 1) * max_entries_per_split and loop.index0 < split * max_entries_per_split %}
+{{ security_group_entry(entry, 443) }} #{{loop.index0 }} {% endif %}{% endfor %}
+
+      Tags:
+        - Key: Name
+          Value: cloudfront-http
+        - Key: AutoUpdate
+          Value: true
+        - Key: Protocol
+          Value: http
+{% endfor %}
+
+
+Outputs:
+  CloudfrontHTTPSG:
+    Description: Cloudfront HTTP Security Group
+    Value: !Ref CloudfrontHTTP
+    Export:
+      Name:
+        Fn::Join:
+          - ""
+          - - !Ref Environment
+            - !Ref Platform
+            - "CloudfrontHTTPSG"
+
+  CloudfrontHTTPSSG:
+    Description: Cloudfront HTTPS Security Group
+    Value: !Ref CloudfrontHTTPS
+    Export:
+      Name:
+        Fn::Join:
+          - ""
+          - - !Ref Environment
+            - !Ref Platform
+            - "CloudfrontHTTPSSG"
+

@@ -1,0 +1,1795 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Creates security groups to allow communication between ATLASSIAN layers.
+Parameters:
+  VPC:
+    Type: String
+    Description: Name of the VPC
+  Environment:
+    Type: String
+    Description: Environment, i.e. PROD
+  Platform:
+    Type: String
+    Description: Name of the platform
+
+Resources:
+
+  CloudfrontHTTP:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Master Security Group referencing Cloudfront Security Groups
+      VpcId:
+        Fn::ImportValue: !Ref VPC
+      SecurityGroupIngress: 
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId:
+            Ref: CloudfrontHTTP1of2
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId:
+            Ref: CloudfrontHTTP2of2
+      Tags:
+        - Key: Name
+          Value: cloudfront-http-master
+        - Key: AutoUpdate
+          Value: true
+
+
+  CloudfrontHTTPS:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Master Security Group referencing Cloudfront Security Groups
+      VpcId:
+        Fn::ImportValue: !Ref VPC
+      SecurityGroupIngress:         
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          SourceSecurityGroupId:
+            Ref: CloudfrontHTTPS1of2        
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          SourceSecurityGroupId:
+            Ref: CloudfrontHTTPS2of2
+      Tags:
+        - Key: Name
+          Value: cloudfront-https-master
+        - Key: AutoUpdate
+          Value: true
+
+
+#max_entries_per_split: 150
+#total_entries: "205"
+#total_splits: "2"
+
+  CloudfrontHTTP1of2:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Cloudfront Ranges HTTP Security Group (part 1 of 2)"
+      VpcId:
+        Fn::ImportValue: !Ref VPC
+      SecurityGroupIngress:
+
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 120.52.22.96/27 #0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 205.251.249.0/24 #1
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 180.163.57.128/26 #2
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 204.246.168.0/22 #3
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 111.13.171.128/26 #4
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 18.160.0.0/15 #5
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 205.251.252.0/23 #6
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 54.192.0.0/16 #7
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 204.246.173.0/24 #8
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 54.230.200.0/21 #9
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 120.253.240.192/26 #10
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 116.129.226.128/26 #11
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 130.176.0.0/17 #12
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 108.156.0.0/14 #13
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 99.86.0.0/16 #14
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 13.32.0.0/15 #15
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 120.253.245.128/26 #16
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 13.224.0.0/14 #17
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 70.132.0.0/18 #18
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 15.158.0.0/16 #19
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 111.13.171.192/26 #20
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 13.249.0.0/16 #21
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 18.238.0.0/15 #22
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 18.244.0.0/15 #23
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 205.251.208.0/20 #24
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 3.165.0.0/16 #25
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 3.168.0.0/14 #26
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 65.9.128.0/18 #27
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 130.176.128.0/18 #28
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 58.254.138.0/25 #29
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 205.251.201.0/24 #30
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 205.251.206.0/23 #31
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 54.230.208.0/20 #32
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 3.160.0.0/14 #33
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 116.129.226.0/25 #34
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 52.222.128.0/17 #35
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 18.164.0.0/15 #36
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 111.13.185.32/27 #37
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 64.252.128.0/18 #38
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 205.251.254.0/24 #39
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 3.166.0.0/15 #40
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 54.230.224.0/19 #41
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 71.152.0.0/17 #42
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 216.137.32.0/19 #43
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 204.246.172.0/24 #44
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 205.251.202.0/23 #45
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 18.172.0.0/15 #46
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 120.52.39.128/27 #47
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 118.193.97.64/26 #48
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 3.164.64.0/18 #49
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 18.154.0.0/15 #50
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 54.240.128.0/18 #51
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 205.251.250.0/23 #52
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 180.163.57.0/25 #53
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 52.46.0.0/18 #54
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 52.82.128.0/19 #55
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 54.230.0.0/17 #56
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 54.230.128.0/18 #57
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 54.239.128.0/18 #58
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 130.176.224.0/20 #59
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 36.103.232.128/26 #60
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 52.84.0.0/15 #61
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 143.204.0.0/16 #62
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 144.220.0.0/16 #63
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 120.52.153.192/26 #64
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 119.147.182.0/25 #65
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 120.232.236.0/25 #66
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 111.13.185.64/27 #67
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 3.164.0.0/18 #68
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 54.182.0.0/16 #69
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 58.254.138.128/26 #70
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 120.253.245.192/27 #71
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 54.239.192.0/19 #72
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 18.68.0.0/16 #73
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 18.64.0.0/14 #74
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 120.52.12.64/26 #75
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 99.84.0.0/16 #76
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 205.251.204.0/23 #77
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 130.176.192.0/19 #78
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 52.124.128.0/17 #79
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 205.251.200.0/24 #80
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 204.246.164.0/22 #81
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 13.35.0.0/16 #82
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 204.246.174.0/23 #83
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 3.164.128.0/17 #84
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 3.172.0.0/18 #85
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 36.103.232.0/25 #86
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 119.147.182.128/26 #87
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 118.193.97.128/25 #88
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 120.232.236.128/26 #89
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 204.246.176.0/20 #90
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 65.8.0.0/16 #91
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 65.9.0.0/17 #92
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 108.138.0.0/15 #93
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 120.253.241.160/27 #94
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 64.252.64.0/18 #95
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 13.113.196.64/26 #96
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 13.113.203.0/24 #97
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 52.199.127.192/26 #98
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 13.124.199.0/24 #99
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 3.35.130.128/25 #100
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 52.78.247.128/26 #101
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 13.233.177.192/26 #102
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 15.207.13.128/25 #103
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 15.207.213.128/25 #104
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 52.66.194.128/26 #105
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 13.228.69.0/24 #106
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 47.129.82.0/24 #107
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 47.129.83.0/24 #108
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 47.129.84.0/24 #109
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 52.220.191.0/26 #110
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 13.210.67.128/26 #111
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 13.54.63.128/26 #112
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 3.107.43.128/25 #113
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 3.107.44.0/25 #114
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 3.107.44.128/25 #115
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 43.218.56.128/26 #116
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 43.218.56.192/26 #117
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 43.218.56.64/26 #118
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 43.218.71.0/26 #119
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 99.79.169.0/24 #120
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 18.192.142.0/23 #121
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 18.199.68.0/22 #122
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 18.199.72.0/22 #123
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 18.199.76.0/22 #124
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 35.158.136.0/24 #125
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 52.57.254.0/24 #126
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 18.200.212.0/23 #127
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 52.212.248.0/26 #128
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 18.175.65.0/24 #129
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 18.175.66.0/24 #130
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 18.175.67.0/24 #131
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 3.10.17.128/25 #132
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 3.11.53.0/24 #133
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 52.56.127.0/25 #134
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 15.188.184.0/24 #135
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 52.47.139.0/24 #136
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 3.29.40.128/26 #137
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 3.29.40.192/26 #138
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 3.29.40.64/26 #139
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 3.29.57.0/26 #140
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 18.229.220.192/26 #141
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 18.230.229.0/24 #142
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 18.230.230.0/25 #143
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 54.233.255.128/26 #144
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 3.231.2.0/25 #145
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 3.234.232.224/27 #146
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 3.236.169.192/26 #147
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 3.236.48.0/23 #148
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 34.195.252.0/24 #149
+      Tags:
+        - Key: Name
+          Value: cloudfront-http
+        - Key: AutoUpdate
+          Value: true
+        - Key: Protocol
+          Value: http
+  CloudfrontHTTP2of2:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Cloudfront Ranges HTTP Security Group (part 2 of 2)"
+      VpcId:
+        Fn::ImportValue: !Ref VPC
+      SecurityGroupIngress:
+
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 34.226.14.0/24 #150
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 44.220.194.0/23 #151
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 44.220.196.0/23 #152
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 44.220.198.0/23 #153
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 44.220.200.0/23 #154
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 44.220.202.0/23 #155
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 44.222.66.0/24 #156
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 13.59.250.0/26 #157
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 18.216.170.128/25 #158
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 3.128.93.0/24 #159
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 3.134.215.0/24 #160
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 3.146.232.0/22 #161
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 3.147.164.0/22 #162
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 3.147.244.0/22 #163
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 52.15.127.128/26 #164
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 3.101.158.0/23 #165
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 52.52.191.128/26 #166
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 34.216.51.0/25 #167
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 34.223.12.224/27 #168
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 34.223.80.192/26 #169
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 35.162.63.192/26 #170
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 35.167.191.128/26 #171
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 35.93.168.0/23 #172
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 35.93.170.0/23 #173
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 35.93.172.0/23 #174
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 44.227.178.0/24 #175
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 44.234.108.128/25 #176
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 44.234.90.252/30 #177
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIpv6: 2600:9000:3000::/36 #178
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIpv6: 2600:9000:f600::/39 #179
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIpv6: 2600:9000:f540::/42 #180
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIpv6: 2409:8c00:2421:300::/56 #181
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIpv6: 2600:9000:f000::/38 #182
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIpv6: 2600:9000:f500::/43 #183
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIpv6: 2600:9000:ddd::/48 #184
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIpv6: 2600:9000:f800::/37 #185
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIpv6: 2600:9000:f400::/40 #186
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIpv6: 2600:9000:f538::/45 #187
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIpv6: 2600:9000:5380::/41 #188
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIpv6: 2600:9000:1000::/36 #189
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIpv6: 2600:9000:2000::/36 #190
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIpv6: 2400:7fc0:500::/40 #191
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIpv6: 2600:9000:4000::/36 #192
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIpv6: 2600:9000:fff::/48 #193
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIpv6: 2409:8c00:2421:400::/56 #194
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIpv6: 2404:c2c0:500::/40 #195
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIpv6: 2600:9000:5308::/45 #196
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIpv6: 2600:9000:f534::/46 #197
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIpv6: 2600:9000:f520::/44 #198
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIpv6: 2600:9000:5320::/43 #199
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIpv6: 2600:9000:5310::/44 #200
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIpv6: 2600:9000:f580::/41 #201
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIpv6: 2600:9000:5340::/42 #202
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIpv6: 2600:9000:eee::/48 #203
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIpv6: 2600:9000:5200::/40 #204
+      Tags:
+        - Key: Name
+          Value: cloudfront-http
+        - Key: AutoUpdate
+          Value: true
+        - Key: Protocol
+          Value: http
+
+
+  CloudfrontHTTPS1of2:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Cloudfront Ranges HTTPS Security Group (part 1 of 2)"
+      VpcId:
+        Fn::ImportValue: !Ref VPC
+      SecurityGroupIngress:
+
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 120.52.22.96/27 #0 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 205.251.249.0/24 #1 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 180.163.57.128/26 #2 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 204.246.168.0/22 #3 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 111.13.171.128/26 #4 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 18.160.0.0/15 #5 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 205.251.252.0/23 #6 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 54.192.0.0/16 #7 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 204.246.173.0/24 #8 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 54.230.200.0/21 #9 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 120.253.240.192/26 #10 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 116.129.226.128/26 #11 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 130.176.0.0/17 #12 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 108.156.0.0/14 #13 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 99.86.0.0/16 #14 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 13.32.0.0/15 #15 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 120.253.245.128/26 #16 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 13.224.0.0/14 #17 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 70.132.0.0/18 #18 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 15.158.0.0/16 #19 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 111.13.171.192/26 #20 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 13.249.0.0/16 #21 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 18.238.0.0/15 #22 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 18.244.0.0/15 #23 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 205.251.208.0/20 #24 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 3.165.0.0/16 #25 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 3.168.0.0/14 #26 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 65.9.128.0/18 #27 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 130.176.128.0/18 #28 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 58.254.138.0/25 #29 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 205.251.201.0/24 #30 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 205.251.206.0/23 #31 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 54.230.208.0/20 #32 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 3.160.0.0/14 #33 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 116.129.226.0/25 #34 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 52.222.128.0/17 #35 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 18.164.0.0/15 #36 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 111.13.185.32/27 #37 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 64.252.128.0/18 #38 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 205.251.254.0/24 #39 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 3.166.0.0/15 #40 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 54.230.224.0/19 #41 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 71.152.0.0/17 #42 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 216.137.32.0/19 #43 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 204.246.172.0/24 #44 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 205.251.202.0/23 #45 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 18.172.0.0/15 #46 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 120.52.39.128/27 #47 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 118.193.97.64/26 #48 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 3.164.64.0/18 #49 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 18.154.0.0/15 #50 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 54.240.128.0/18 #51 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 205.251.250.0/23 #52 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 180.163.57.0/25 #53 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 52.46.0.0/18 #54 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 52.82.128.0/19 #55 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 54.230.0.0/17 #56 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 54.230.128.0/18 #57 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 54.239.128.0/18 #58 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 130.176.224.0/20 #59 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 36.103.232.128/26 #60 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 52.84.0.0/15 #61 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 143.204.0.0/16 #62 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 144.220.0.0/16 #63 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 120.52.153.192/26 #64 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 119.147.182.0/25 #65 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 120.232.236.0/25 #66 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 111.13.185.64/27 #67 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 3.164.0.0/18 #68 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 54.182.0.0/16 #69 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 58.254.138.128/26 #70 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 120.253.245.192/27 #71 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 54.239.192.0/19 #72 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 18.68.0.0/16 #73 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 18.64.0.0/14 #74 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 120.52.12.64/26 #75 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 99.84.0.0/16 #76 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 205.251.204.0/23 #77 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 130.176.192.0/19 #78 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 52.124.128.0/17 #79 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 205.251.200.0/24 #80 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 204.246.164.0/22 #81 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 13.35.0.0/16 #82 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 204.246.174.0/23 #83 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 3.164.128.0/17 #84 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 3.172.0.0/18 #85 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 36.103.232.0/25 #86 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 119.147.182.128/26 #87 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 118.193.97.128/25 #88 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 120.232.236.128/26 #89 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 204.246.176.0/20 #90 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 65.8.0.0/16 #91 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 65.9.0.0/17 #92 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 108.138.0.0/15 #93 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 120.253.241.160/27 #94 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 64.252.64.0/18 #95 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 13.113.196.64/26 #96 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 13.113.203.0/24 #97 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 52.199.127.192/26 #98 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 13.124.199.0/24 #99 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 3.35.130.128/25 #100 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 52.78.247.128/26 #101 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 13.233.177.192/26 #102 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 15.207.13.128/25 #103 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 15.207.213.128/25 #104 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 52.66.194.128/26 #105 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 13.228.69.0/24 #106 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 47.129.82.0/24 #107 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 47.129.83.0/24 #108 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 47.129.84.0/24 #109 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 52.220.191.0/26 #110 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 13.210.67.128/26 #111 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 13.54.63.128/26 #112 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 3.107.43.128/25 #113 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 3.107.44.0/25 #114 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 3.107.44.128/25 #115 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 43.218.56.128/26 #116 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 43.218.56.192/26 #117 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 43.218.56.64/26 #118 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 43.218.71.0/26 #119 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 99.79.169.0/24 #120 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 18.192.142.0/23 #121 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 18.199.68.0/22 #122 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 18.199.72.0/22 #123 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 18.199.76.0/22 #124 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 35.158.136.0/24 #125 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 52.57.254.0/24 #126 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 18.200.212.0/23 #127 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 52.212.248.0/26 #128 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 18.175.65.0/24 #129 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 18.175.66.0/24 #130 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 18.175.67.0/24 #131 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 3.10.17.128/25 #132 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 3.11.53.0/24 #133 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 52.56.127.0/25 #134 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 15.188.184.0/24 #135 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 52.47.139.0/24 #136 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 3.29.40.128/26 #137 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 3.29.40.192/26 #138 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 3.29.40.64/26 #139 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 3.29.57.0/26 #140 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 18.229.220.192/26 #141 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 18.230.229.0/24 #142 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 18.230.230.0/25 #143 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 54.233.255.128/26 #144 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 3.231.2.0/25 #145 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 3.234.232.224/27 #146 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 3.236.169.192/26 #147 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 3.236.48.0/23 #148 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 34.195.252.0/24 #149 
+      Tags:
+        - Key: Name
+          Value: cloudfront-http
+        - Key: AutoUpdate
+          Value: true
+        - Key: Protocol
+          Value: http
+  CloudfrontHTTPS2of2:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Cloudfront Ranges HTTPS Security Group (part 2 of 2)"
+      VpcId:
+        Fn::ImportValue: !Ref VPC
+      SecurityGroupIngress:
+
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 34.226.14.0/24 #150 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 44.220.194.0/23 #151 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 44.220.196.0/23 #152 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 44.220.198.0/23 #153 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 44.220.200.0/23 #154 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 44.220.202.0/23 #155 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 44.222.66.0/24 #156 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 13.59.250.0/26 #157 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 18.216.170.128/25 #158 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 3.128.93.0/24 #159 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 3.134.215.0/24 #160 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 3.146.232.0/22 #161 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 3.147.164.0/22 #162 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 3.147.244.0/22 #163 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 52.15.127.128/26 #164 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 3.101.158.0/23 #165 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 52.52.191.128/26 #166 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 34.216.51.0/25 #167 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 34.223.12.224/27 #168 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 34.223.80.192/26 #169 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 35.162.63.192/26 #170 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 35.167.191.128/26 #171 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 35.93.168.0/23 #172 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 35.93.170.0/23 #173 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 35.93.172.0/23 #174 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 44.227.178.0/24 #175 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 44.234.108.128/25 #176 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 44.234.90.252/30 #177 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIpv6: 2600:9000:3000::/36 #178 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIpv6: 2600:9000:f600::/39 #179 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIpv6: 2600:9000:f540::/42 #180 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIpv6: 2409:8c00:2421:300::/56 #181 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIpv6: 2600:9000:f000::/38 #182 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIpv6: 2600:9000:f500::/43 #183 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIpv6: 2600:9000:ddd::/48 #184 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIpv6: 2600:9000:f800::/37 #185 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIpv6: 2600:9000:f400::/40 #186 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIpv6: 2600:9000:f538::/45 #187 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIpv6: 2600:9000:5380::/41 #188 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIpv6: 2600:9000:1000::/36 #189 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIpv6: 2600:9000:2000::/36 #190 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIpv6: 2400:7fc0:500::/40 #191 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIpv6: 2600:9000:4000::/36 #192 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIpv6: 2600:9000:fff::/48 #193 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIpv6: 2409:8c00:2421:400::/56 #194 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIpv6: 2404:c2c0:500::/40 #195 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIpv6: 2600:9000:5308::/45 #196 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIpv6: 2600:9000:f534::/46 #197 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIpv6: 2600:9000:f520::/44 #198 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIpv6: 2600:9000:5320::/43 #199 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIpv6: 2600:9000:5310::/44 #200 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIpv6: 2600:9000:f580::/41 #201 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIpv6: 2600:9000:5340::/42 #202 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIpv6: 2600:9000:eee::/48 #203 
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIpv6: 2600:9000:5200::/40 #204 
+      Tags:
+        - Key: Name
+          Value: cloudfront-http
+        - Key: AutoUpdate
+          Value: true
+        - Key: Protocol
+          Value: http
+
+
+Outputs:
+  CloudfrontHTTPSG:
+    Description: Cloudfront HTTP Security Group
+    Value: !Ref CloudfrontHTTP
+    Export:
+      Name:
+        Fn::Join:
+          - ""
+          - - !Ref Environment
+            - !Ref Platform
+            - "CloudfrontHTTPSG"
+
+  CloudfrontHTTPSSG:
+    Description: Cloudfront HTTPS Security Group
+    Value: !Ref CloudfrontHTTPS
+    Export:
+      Name:
+        Fn::Join:
+          - ""
+          - - !Ref Environment
+            - !Ref Platform
+            - "CloudfrontHTTPSSG"
+

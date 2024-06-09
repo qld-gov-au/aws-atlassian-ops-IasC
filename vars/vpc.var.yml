@@ -1,0 +1,56 @@
+---
+opsAccount: "{{ lookup('amazon.aws.ssm_parameter', '/config/ATLASSIAN/opsVpcAccount', region=region) }}"
+opsRole: "{{ lookup('amazon.aws.ssm_parameter', '/config/ATLASSIAN/opsVpcRole', region=region) }}"
+opsVpcID:  "{{ lookup('amazon.aws.ssm_parameter', '/config/ATLASSIAN/opsVpcId', region=region) }}"
+
+common_stack: &common_stack
+  # VPC stacks cannot be properly torn down via Ansible
+  state: present
+  region: "{{ region }}"
+  disable_rollback: true
+  template: "templates/3_tier_vpc.yml"
+  template_parameters: &common_stack_template_parameters
+    ApplicationName: "ATLASSIAN"
+    AZCount: '2'
+#    BambooAgentIp: "{{ lookup('amazon.aws.ssm_parameter', '/config/ATLASSIAN/cicdIpA', region=region) }}"
+#    BambooAgentIp2: "{{ lookup('amazon.aws.ssm_parameter', '/config/ATLASSIAN/cicdIpB', region=region) }}"
+    NatGateways: 'true'
+    VPCNamePrefix: ATLASSIAN
+    VPCPeeringEnabled: "{{ VPCPeeringEnabled | default('false') }} "
+    VPCPeeringID: "{{ VPCPeeringID| default('') }}"
+#    VPCPeeringCidr: "{{ lookup('amazon.aws.ssm_parameter', '/config/ATLASSIAN/opsVpcCidr', region=region) }}"
+  tags: &common_stack_tags
+    Environment: "{{ Environment }}"
+    Service: "ATLASSIAN"
+    Division: "{{ Division }}"
+    Owner: "{{ Owner }}"
+    Version: "1.0"
+
+cloudformation_stacks:
+  - <<: *common_stack
+    name: "ATLASSIAN-PROD-VPC"
+    template_parameters:
+      <<: *common_stack_template_parameters
+      Environment: PROD
+      VPCPrefix: '/config/ATLASSIAN/PROD/VPCPrefix'
+
+#  - <<: *common_stack
+#    name: "ATLASSIAN-STAGING-VPC"
+#    template_parameters:
+#      <<: *common_stack_template_parameters
+#      Environment: STAGING
+#      VPCPrefix: '/config/ATLASSIAN/STAGING/VPCPrefix'
+#
+#  - <<: *common_stack
+#    name: "ATLASSIAN-TRAINING-VPC"
+#    template_parameters:
+#      <<: *common_stack_template_parameters
+#      Environment: TRAINING
+#      VPCPrefix: '/config/ATLASSIAN/TRAINING/VPCPrefix'
+
+  - <<: *common_stack
+    name: "ATLASSIAN-DEV-VPC"
+    template_parameters:
+      <<: *common_stack_template_parameters
+      Environment: DEV
+      VPCPrefix: '/config/ATLASSIAN/DEV/VPCPrefix'

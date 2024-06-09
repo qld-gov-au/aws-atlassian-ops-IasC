@@ -1,0 +1,84 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Creates security groups to allow communication between ATLASSIAN layers.
+Parameters:
+  BambooAgentIp:
+    Type: 'AWS::SSM::Parameter::Value<String>'
+    Default: '/config/ATLASSIAN/cicdIpA'
+    Description: CIDR of the local Bamboo agent
+  BambooAgentIp2:
+    Type: 'AWS::SSM::Parameter::Value<String>'
+    Default: '/config/ATLASSIAN/cicdIpB'
+    Description: CIDR of the local Bamboo agent
+  BambooAgentSecurityGroup:
+    Type: 'AWS::SSM::Parameter::Value<String>'
+    Default: '/config/ATLASSIAN/cicdSecurityGroup'
+    Description: Security group containing bamboo agents.
+  VPCPeeringCidr:
+    Type: 'AWS::SSM::Parameter::Value<String>'
+    Default: '/config/ATLASSIAN/opsVpcCidr'
+    Description: CIDR for VPC Peering network
+  VPC:
+    Type: String
+    Description: Name of the VPC
+  Environment:
+    Type: String
+    Description: Platforms environment
+  Platform:
+    Type: String
+    Description: Name of the platform
+
+Resources:
+  ManagementAndVPCPeering:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Monitoring & Management group
+      VpcId:
+        Fn::ImportValue: !Ref VPC
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: !Ref BambooAgentIp
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: !Ref BambooAgentIp2
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 8443
+        CidrIp: !Ref VPCPeeringCidr
+
+
+  Ec2CrossDomainAccess:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group to be attached to allow outbound communication to other nodes
+      VpcId:
+        Fn::ImportValue: !Ref VPC
+
+
+Outputs:
+  ManagementSG:
+    Description: Shared services management group
+    Value: !Ref ManagementAndVPCPeering
+    Export:
+      Name:
+        Fn::Join:
+          - ""
+          - - !Ref Environment
+            - !Ref Platform
+            - "ManagementSG"
+
+  Ec2CrossDomainAccessSG:
+    Description: Security group to be attached to allow outbound communication to other nodes
+    Value: !Ref Ec2CrossDomainAccess
+    Export:
+      Name:
+        Fn::Join:
+          - ""
+          - - !Ref Environment
+            - !Ref Platform
+            - "Ec2CrossDomainAccessSG"
+
+

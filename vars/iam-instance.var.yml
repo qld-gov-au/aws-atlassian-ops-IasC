@@ -1,0 +1,16 @@
+---
+cloudformation_stacks:
+  - name: "ATLASSIAN-{{ Environment }}-IAM-INSTANCE"
+    state: "{{ state | default('present')}}"
+    region: "{{ region }}"
+    disable_rollback: true
+    template: "templates/iam-instance.cfn.yml"
+    template_parameters:
+      Environment: "{{ Environment }}"
+      Platform: ATLASSIAN
+    tags:
+      Environment: "{{ Environment }}"
+      Service: "ATLASSIAN"
+      Division: "{{ Division }}"
+      Owner: "{{ Owner }}"
+      Version: "1.0"

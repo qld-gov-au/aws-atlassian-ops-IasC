@@ -1,0 +1,17 @@
+---
+cloudformation_stacks:
+  - name: "ATLASSIAN-{{ Environment }}-SECURITY-GROUPS"
+    state: "{{ state | default('present')}}"
+    region: "{{ region }}"
+    disable_rollback: true
+    template: "templates/security_groups.cfn.yml" #don't need template_jinja as security_groups.yml does it for us
+    template_parameters:
+      Environment: "{{ Environment }}"
+      Platform: ATLASSIAN
+      VPC: "ATLASSIANVpc-{{ Environment }}"
+    tags:
+      Environment: "{{ Environment }}"
+      Service: "ATLASSIAN"
+      Division: "{{ Division }}"
+      Owner: "{{ Owner }}"
+      Version: "1.0"

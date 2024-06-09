@@ -1,0 +1,288 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Create IAM roles for Admin access.
+Parameters:
+  Environment:
+    Type: String
+    Description: Platforms environment
+  Platform:
+    Type: String
+    Description: Name of the platform ie GI, Services, Static
+  MainAccountID:
+    Type: 'AWS::SSM::Parameter::Value<String>'
+    Default: '/config/ATLASSIAN/MainAccountID'
+    Description: Account that allows assumeRole
+  VendorAccountID:
+    Type: 'AWS::SSM::Parameter::Value<String>'
+    Default: '/config/ATLASSIAN/VendorAccountID'
+    Description: Account that allows assumeRole
+  VendorUserID:
+    Type: 'AWS::SSM::Parameter::Value<String>'
+    Default: '/config/ATLASSIAN/VendorUserID'
+    Description: Account that allows assumeRole
+
+Resources:
+    AtlassianCloudformationAdminRole:
+      Type: 'AWS::IAM::Role'
+      Properties:
+        RoleName: 'AtlassianCloudformationAdmin'
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: 'Allow'
+              Principal:
+                Service: 'cloudformation.amazonaws.com'
+              Action: 'sts:AssumeRole'
+        ManagedPolicyArns:
+          - 'arn:aws:iam::aws:policy/AdministratorAccess'
+        Tags:
+          - Key: 'Service'
+            Value: 'Atlassian'
+        MaxSessionDuration: 3600  # 1 hour in seconds
+
+    AtlassianSupportRole:
+      Type: 'AWS::IAM::Role'
+      Properties:
+        RoleName: 'AtlassianSupport'
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: 'Allow'
+              Principal:
+                AWS: !Sub 'arn:aws:iam::${MainAccountID}:root'
+              Action: 'sts:AssumeRole'
+              Condition:
+                Bool:
+                  'aws:MultiFactorAuthPresent': 'true'
+            - Effect: 'Allow'
+              Principal:
+                AWS: !Sub 'arn:aws:iam::${VendorAccountID}:role/AwsAccountRoleQOLSSQ'
+              Action: 'sts:AssumeRole'
+              Condition:
+                Bool:
+                  'aws:MultiFactorAuthPresent': 'true'
+            - Effect: 'Allow'
+              Principal:
+                AWS: !Sub 'arn:aws:iam::${VendorAccountID}:user/${VendorUserID}'
+              Action: 'sts:AssumeRole'
+              Condition:
+                Bool:
+                  'aws:MultiFactorAuthPresent': 'true'
+        ManagedPolicyArns:
+          - 'arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess'
+          - 'arn:aws:iam::aws:policy/AmazonOpenSearchServiceReadOnlyAccess'
+          - 'arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess'
+          - 'arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess'
+          - 'arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess'
+          - Ref: AtlassianSystemsManagerSessionPolicy
+          - Ref: AtlassianCfnAllowUpdatePolicy
+
+    AtlassianAdminRole:
+      Type: 'AWS::IAM::Role'
+      Properties:
+        RoleName: 'AtlassianAdmin'
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: 'Allow'
+              Principal:
+                AWS: !Sub 'arn:aws:iam::${MainAccountID}:root'
+              Action: 'sts:AssumeRole'
+              Condition:
+                Bool:
+                  'aws:MultiFactorAuthPresent': 'true'
+            - Effect: 'Allow'
+              Principal:
+                AWS: !Sub 'arn:aws:iam::${VendorAccountID}:role/AwsAccountRoleQOLSSQ'
+              Action: 'sts:AssumeRole'
+              Condition:
+                Bool:
+                  'aws:MultiFactorAuthPresent': 'true'
+            - Effect: 'Allow'
+              Principal:
+                AWS: !Sub 'arn:aws:iam::${VendorAccountID}:user/${VendorUserID}'
+              Action: 'sts:AssumeRole'
+              Condition:
+                Bool:
+                  'aws:MultiFactorAuthPresent': 'true'
+        ManagedPolicyArns:
+          - !Ref AllowAdminActionsPolicy
+
+
+    AllowAdminActionsPolicy:
+      Type: 'AWS::IAM::ManagedPolicy'
+      Properties:
+        ManagedPolicyName: 'AllowAdminActionsPolicy'
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Sid: 'VisualEditor0'
+              Effect: 'Allow'
+              Action:
+                - '*'
+              Resource: '*'
+            ##We do not want to allow vpc's to be created/deleted nor users to be created
+            - Sid: 'VisualEditor1'
+              Effect: 'Deny'
+              Action:
+                - 'ec2:DeleteSubnet'
+                - 'cloudtrail:DeleteTrail'
+                - 'ec2:CreateVpc'
+                - 'iam:DeleteUser'
+                - 'ec2:DeleteVpc'
+                - 'ec2:CreateSubnet'
+                - 'iam:CreateUser'
+              Resource: '*'
+
+
+    AtlassianSystemsManagerSessionPolicy:
+      Type: 'AWS::IAM::ManagedPolicy'
+      Properties:
+        ManagedPolicyName: 'AtlassianSystemsManagerSession'
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Sid: 'VisualEditor0'
+              Effect: 'Allow'
+              Action: 'ssm:StartSession'
+              Resource: !Sub "arn:aws:ec2:*:${AWS::AccountId}:instance/*"
+              Condition:
+                StringLike:
+                  'ssm:resourceTag/Service': 'Atlassian'
+            - Sid: 'VisualEditor1'
+              Effect: 'Allow'
+              Action: 'ssm:TerminateSession'
+              Resource: '*'
+              Condition:
+                StringLike:
+                  'ssm:resourceTag/aws:ssmmessages:session-id': '${aws:userid}-*'
+            - Sid: 'VisualEditor2'
+              Effect: 'Allow'
+              Action:
+                - 'ssm:ResumeSession'
+                - 'ssm:TerminateSession'
+              Resource: 'arn:aws:ssm:*:*:session/${aws:username}-*'
+            - Sid: 'VisualEditor3'
+              Effect: 'Allow'
+              Action:
+                - 'ssm:GetAutomationExecution'
+                - 'ssm:GetDefaultPatchBaseline'
+                - 'ssm:DescribeDocument'
+                - 'ssm:DescribeInstancePatches'
+                - 'ssm:DescribeSessions'
+                - 'ssm:GetPatchBaselineForPatchGroup'
+                - 'ssm:GetMaintenanceWindowExecutionTaskInvocation'
+                - 'ssm:DescribeAutomationExecutions'
+                - 'ssm:GetManifest'
+                - 'ssm:GetMaintenanceWindowTask'
+                - 'ssm:DescribeAutomationStepExecutions'
+                - 'ssm:DescribeInstancePatchStates'
+                - 'ssm:DescribeInstancePatchStatesForPatchGroup'
+                - 'ssm:GetDocument'
+                - 'ssm:GetInventorySchema'
+                - 'ssm:GetMaintenanceWindow'
+                - 'ssm:DescribeInstanceAssociationsStatus'
+                - 'ssm:DescribeAssociationExecutionTargets'
+                - 'ssm:GetPatchBaseline'
+                - 'ssm:DescribeInstanceProperties'
+                - 'ssm:DescribeAssociation'
+                - 'ssm:GetConnectionStatus'
+                - 'ssm:GetMaintenanceWindowExecutionTask'
+                - 'ssm:GetDeployablePatchSnapshotForInstance'
+                - 'ssm:GetOpsItem'
+                - 'ssm:GetMaintenanceWindowExecution'
+                - 'ssm:DescribeInventoryDeletions'
+                - 'ssm:DescribeEffectiveInstanceAssociations'
+                - 'ssm:GetInventory'
+                - 'ssm:GetOpsSummary'
+                - 'ssm:DescribeActivations'
+                - 'ssm:GetOpsMetadata'
+                - 'ssm:DescribeOpsItems'
+                - 'ssm:GetCommandInvocation'
+                - 'ssm:DescribeInstanceInformation'
+                - 'ssm:DescribeDocumentParameters'
+                - 'ssm:DescribeEffectivePatchesForPatchBaseline'
+                - 'ssm:GetServiceSetting'
+                - 'ssm:DescribeAssociationExecutions'
+                - 'ssm:GetCalendar'
+                - 'ssm:List*'
+                - 'ssm:DescribeDocumentPermission'
+                - 'ssm:GetCalendarState'
+                - 'ssm:DescribeAvailablePatches'
+              Resource: '*'
+
+    AtlassianCfnAllowUpdatePolicy:
+      DependsOn: AtlassianCloudformationAdminRole
+      Type: 'AWS::IAM::ManagedPolicy'
+      Properties:
+        ManagedPolicyName: 'AtlassianCfnAllowUpdatePolicy'
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Sid: 'VisualEditor0'
+              Effect: 'Allow'
+              Action:
+                - 'cloudformation:CancelUpdateStack'
+                - 'cloudformation:RollbackStack'
+                - 'cloudformation:UpdateStackInstances'
+                - 'cloudformation:UpdateStack'
+                - 'cloudformation:UpdateStackSet'
+                - 'cloudformation:CreateChangeSet'
+                - 'cloudformation:ExecuteChangeSet'
+                - 'cloudformation:ContinueUpdateRollback'
+              Resource: '*'
+              Condition:
+                StringLike:
+                  'aws:ResourceTag/Service': 'Atlassian'
+                BoolIfExists:
+                  'aws:MultiFactorAuthPresent': 'true'
+            - Sid: 'asgUpdate'
+              Effect: 'Allow'
+              Action:
+                - 'autoscaling:UpdateAutoScalingGroup'
+              Resource: '*'
+              Condition:
+                StringLike:
+                  'aws:ResourceTag/Service': 'Atlassian'
+                BoolIfExists:
+                  'aws:MultiFactorAuthPresent': 'true'
+            - Sid: 'VisualEditor1'
+              Effect: 'Allow'
+              Action:
+                - 'iam:ListPolicies'
+                - 'iam:ListPolicyTags'
+                - 'iam:GetPolicyVersion'
+                - 'iam:GetRole'
+                - 'iam:ListRoles'
+                - 'iam:GetRolePolicy'
+                - 'iam:ListAttachedRolePolicies'
+                - 'iam:ListRolePolicies'
+                - 'access-analyzer:ListPolicyGenerations'
+              Resource: '*'
+            - Sid: 'VisualEditor2'
+              Effect: 'Allow'
+              Action: 'iam:PassRole'
+              Resource: !Sub "arn:aws:iam::${AWS::AccountId}:role/AtlassianCloudformationAdmin"
+            - Sid: 'CloudLogsView'
+              Effect: 'Allow'
+              Action:
+                - 'logs:DescribeLogGroups'
+                - 'logs:GetLogGroupFields'
+                - 'logs:DescribeMetricFilters'
+                - 'cloudwatch:ListDashboards'
+                - 'logs:ScheduleQuery'
+              Resource: '*'
+            - Sid: 'CloudLogsSee'
+              Effect: 'Allow'
+              Action:
+                - 'logs:DescribeLogGroups'
+                - 'logs:DescribeQueryDefinitions'
+              Resource: '*'
+            - Sid: 'dashboardview'
+              Effect: 'Allow'
+              Action: 'cloudwatch:GetDashboard'
+              Resource: !Sub "arn:aws:cloudwatch::${AWS::AccountId}:dashboard/Atlassian-*"
+            - Sid: 'logInsights'
+              Effect: 'Allow'
+              Action: 'logs:FilterLogEvents'
+              Resource: !Sub "arn:aws:logs:ap-southeast-2:${AWS::AccountId}:log-group:*:*"

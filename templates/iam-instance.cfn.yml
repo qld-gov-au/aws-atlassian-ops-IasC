@@ -1,0 +1,48 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Create IAM roles for access and instance roles needed for cross account s3 to work.
+Parameters:
+  Environment:
+    Type: String
+    Description: Platforms environment
+  Platform:
+    Type: String
+    Description: Name of the platform ie GI, Services, Static
+
+Resources:
+  InstanceRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service: ec2.amazonaws.com
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: !Sub "${Platform}-${Environment}-CustomPolicy"
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                # allow the servers to retrieve a subset of SSM Parameter Store values
+                - Effect: Allow
+                  Action:
+                    - ssm:GetParameter
+                    - ssm:GetParameters
+                    - ssm:GetParametersByPath
+                  Resource:
+                    - !Sub "arn:aws:ssm:*:*:parameter/config/ATLASSIAN/${Environment}*"
+                    - !Sub "arn:aws:ssm:*:*:parameter/config/ATLASSIAN/${Environment}/*"
+        ManagedPolicyArns:
+          ##- !Ref InstancePolicy
+          - arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
+          - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+          - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy # to write CloudWatch logs
+          ##add more policies when required
+
+Outputs:
+  InstanceRole:
+    Value: !Ref InstanceRole
+    Export:
+       Name: !Sub "${Environment}${Platform}InstanceRole"
