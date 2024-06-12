@@ -11,17 +11,17 @@ Division: Qld Online
 basic_facts:
   - Environment: PROD
     #Route53 zone
-    PublicStackZoneTLD: "{{ lookup('amazon.aws.aws_ssm', '/config/ATLASSIAN/PROD/PublicStackZoneTLD', region='ap-southeast-2' on_missing="warn") | default('MISSING', true) }}"
+    PublicStackZoneTLD: "{{ lookup('amazon.aws.aws_ssm', '/config/ATLASSIAN/PROD/PublicStackZoneTLD', region='ap-southeast-2', on_missing='warn') | default('MISSING', true) }}"
     #Site root domain
-    RootDomain: "{{ lookup('amazon.aws.aws_ssm', '/config/ATLASSIAN/PROD/RootDomain', region='ap-southeast-2' on_missing="warn") | default('MISSING', true) }}"
+    RootDomain: "{{ lookup('amazon.aws.aws_ssm', '/config/ATLASSIAN/PROD/RootDomain', region='ap-southeast-2', on_missing='warn') | default('MISSING', true) }}"
     #This is the NLB nice domain name
-    InternalDomain: "{{ lookup('amazon.aws.aws_ssm', '/config/ATLASSIAN/PROD/InternalDomain', region='ap-southeast-2' on_missing="warn") | default('MISSING', true) }}"
+    InternalDomain: "{{ lookup('amazon.aws.aws_ssm', '/config/ATLASSIAN/PROD/InternalDomain', region='ap-southeast-2', on_missing='warn') | default('MISSING', true) }}"
 
   - Environment: DEV
     #Route53 zone
-    PublicStackZoneTLD: "{{ lookup('amazon.aws.aws_ssm', '/config/ATLASSIAN/DEV/PublicStackZoneTLD', region='ap-southeast-2' on_missing="warn") | default('MISSING', true) }}"
+    PublicStackZoneTLD: "{{ lookup('amazon.aws.aws_ssm', '/config/ATLASSIAN/DEV/PublicStackZoneTLD', region='ap-southeast-2', on_missing='warn') | default('MISSING', true) }}"
     #Site root domain
-    RootDomain: "{{ lookup('amazon.aws.aws_ssm', '/config/ATLASSIAN/DEV/RootDomain', region='ap-southeast-2' on_missing="warn") | default('MISSING', true) }}"
+    RootDomain: "{{ lookup('amazon.aws.aws_ssm', '/config/ATLASSIAN/DEV/RootDomain', region='ap-southeast-2', on_missing='warn') | default('MISSING', true) }}"
     #This is the NLB nice domain name
-    InternalDomain: "{{ lookup('amazon.aws.aws_ssm', '/config/ATLASSIAN/DEV/InternalDomain', region='ap-southeast-2' on_missing="warn") | default('MISSING', true) }}"
+    InternalDomain: "{{ lookup('amazon.aws.aws_ssm', '/config/ATLASSIAN/DEV/InternalDomain', region='ap-southeast-2', on_missing='warn') | default('MISSING', true) }}"
 

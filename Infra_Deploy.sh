@@ -35,7 +35,7 @@ run-shared-resource-playbooks () {
   run-playbook "CloudFormation" "vars/iam.var.yml"
   run-playbook "CloudFormation" "vars/iam-instance.var.yml"
   run-playbook "vpc"
-  run-playbook "CloudFormation" "vars/secruity_groups.var.yml"
+  run-playbook "CloudFormation" "vars/security_groups.var.yml"
   run-playbook "cloudfront_security_groups"
 
 }

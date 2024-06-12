@@ -46,26 +46,6 @@
       when: VPCId is defined
       register: vpcPeeringDescibed
 
-#    - name: get vpc peering info
-#      ec2_vpc_peer_describe:
-#        vpc_id: "{{ VPCId }}"
-#        peer_vpc_id: "{{ opsVpcID }}"
-#        region: "{{ region }}"
-#      when: VPCId is defined and opsVpcID is defined
-#      register: vpcPeeringDescibed
-
-#    - name: get vpc peering info
-#      command: "aws ec2  describe-vpc-peering-connections   --region ap-southeast-2 --filters Name=requester-vpc-info.vpc-id,Values={{ VPCId }} Name=accepter-vpc-info.vpc-id,Values={{ opsVpcID }}  Name=status-code,Values=active"
-#      when: VPCId is defined
-#      register: vpcPeeringDescribedCmd
-
-#    - debug:
-#        msg: "{{ vpcPeeringDescribedCmd }}"
-#      when: vpcPeeringDescribedCmd is defined
-
-#    - set_fact:
-#        vpcPeeringDescibed: "{{ vpcPeeringDescribedCmd.stdout }}"
-
     - debug:
         msg: "vpc peer describe {{ vpcPeeringDescibed }}"
       when: vpcPeeringDescibed.result[0] is defined
